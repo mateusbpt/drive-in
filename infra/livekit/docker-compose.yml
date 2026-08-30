@@ -1,0 +1,45 @@
+# LiveKit in production.
+#
+# It is a plain Compose stack rather than an orchestrator "application", for a
+# concrete reason: on Docker Swarm only one of the requested UDP ports was ever
+# published — `7882/udp` answered ICMP port unreachable, exactly like a port with
+# nothing behind it. Worse, deleting and recreating the port never changed the
+# service spec. With Compose the publishing is plain Docker and behaves the way
+# it is written here.
+#
+# The app and Redis can stay ordinary applications: they only speak HTTP through
+# the reverse proxy and publish no raw ports at all.
+
+services:
+  livekit:
+    image: livekit/livekit-server:v1.13
+    restart: unless-stopped
+    environment:
+      LIVEKIT_KEYS: "${LIVEKIT_API_KEY}: ${LIVEKIT_API_SECRET}"
+      # JSON on one line: YAML is a superset of JSON, so the value survives being
+      # pasted through a dashboard's variable editor.
+      LIVEKIT_CONFIG: >-
+        {"port":7880,
+        "rtc":{"tcp_port":7881,"port_range_start":50000,"port_range_end":50060,"use_external_ip":false,"node_ip":"${NODE_IP}"},
+        "redis":{"address":"${REDIS_HOST}:6379","password":"${REDIS_PASSWORD}"},
+        "room":{"auto_create":false,"empty_timeout":300},
+        "logging":{"level":"info","json":false}}
+    ports:
+      # Media does not go through the proxy, which only speaks HTTP. A port range
+      # instead of a single port: LiveKit's single-port multiplexer received
+      # nothing behind Docker's NAT, while an ordinary socket received fine.
+      - "7881:7881/tcp"
+      - "50000-50060:50000-50060/udp"
+    networks: [edge]
+    labels:
+      # Only the signalling is HTTP, and that is what the proxy publishes over TLS.
+      - traefik.enable=true
+      - traefik.docker.network=edge
+      - traefik.http.routers.drivein-livekit.rule=Host(`${DOMAIN_LIVEKIT}`)
+      - traefik.http.routers.drivein-livekit.entrypoints=websecure
+      - traefik.http.routers.drivein-livekit.tls.certresolver=letsencrypt
+      - traefik.http.services.drivein-livekit.loadbalancer.server.port=7880
+
+networks:
+  edge:
+    external: true

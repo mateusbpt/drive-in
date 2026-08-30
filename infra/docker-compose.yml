@@ -1,0 +1,51 @@
+# Drive-In & Popcorn — dependencies for development.
+#
+#   pnpm infra:up
+#
+# Brings up Redis and LiveKit only. The api runs outside compose with
+# `pnpm dev:api`, and the frontend with Vite.
+
+services:
+  redis:
+    image: redis:8.8-alpine
+    restart: unless-stopped
+    command: redis-server --save 60 1 --loglevel warning
+    ports:
+      - "127.0.0.1:6379:6379"
+    networks: [drivein]
+
+  livekit:
+    image: livekit/livekit-server:v1.13
+    restart: unless-stopped
+    depends_on: [redis]
+    environment:
+      LIVEKIT_KEYS: "${LIVEKIT_API_KEY}: ${LIVEKIT_API_SECRET}"
+      LIVEKIT_CONFIG: |
+        port: 7880
+        rtc:
+          tcp_port: 7881
+          # A range instead of a single port, same as production: LiveKit's
+          # single-port multiplexer receives nothing behind Docker's NAT.
+          port_range_start: 50000
+          port_range_end: 50060
+          # The browser is on the same machine and cannot reach the public IP
+          # back into Docker. Advertising 127.0.0.1 is what makes the media
+          # connection complete in development.
+          use_external_ip: false
+          node_ip: 127.0.0.1
+        redis:
+          address: redis:6379
+        room:
+          auto_create: false
+          empty_timeout: 300
+        logging:
+          level: info
+          json: false
+    ports:
+      - "127.0.0.1:7880:7880/tcp"
+      - "127.0.0.1:7881:7881/tcp"
+      - "127.0.0.1:50000-50060:50000-50060/udp"
+    networks: [drivein]
+
+networks:
+  drivein:

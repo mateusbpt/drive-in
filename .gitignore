@@ -1,0 +1,40 @@
+# Dependencies and build output
+node_modules/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+.vite/
+.turbo/
+.cache/
+
+# Secrets. The .env holds the LiveKit key and the session secret — never commit it.
+.env
+.env.*
+!.env.example
+*.local
+*.pem
+*.key
+
+# Editors and local tooling
+.claude/
+.vscode/
+.idea/
+*.swp
+*~
+
+# Operating system leftovers
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs and temporary files
+*.log
+*.tmp
+
+# Design canvases — they stay on disk
+docs/design/
+
+# Tool-installed agent skills — not part of the project
+.agents/
+skills-lock.json

@@ -1,0 +1,23 @@
+{
+  "name": "drive-in",
+  "private": true,
+  "description": "A private drive-in for a closed group of friends",
+  "scripts": {
+    "dev": "pnpm --filter @drive-in/web dev",
+    "dev:api": "pnpm --filter @drive-in/api dev",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "build": "pnpm -r --if-present build",
+    "infra:up": "docker compose -f infra/docker-compose.yml --env-file .env up -d",
+    "infra:down": "docker compose -f infra/docker-compose.yml --env-file .env down",
+    "infra:logs": "docker compose -f infra/docker-compose.yml logs -f",
+    "room:create": "pnpm --filter @drive-in/api room:create",
+    "room:lock": "pnpm --filter @drive-in/api room:lock",
+    "room:close": "pnpm --filter @drive-in/api room:close",
+    "room:list": "pnpm --filter @drive-in/api room:list",
+    "room:check": "pnpm --filter @drive-in/api room:check"
+  },
+  "packageManager": "pnpm@11.15.1",
+  "engines": {
+    "node": ">=24"
+  }
+}

@@ -1,0 +1,9 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+
+# pnpm 11 blocks install scripts by default. esbuild needs its own to link the
+# native binary — without it Vite cannot build. Allowed one by one, on purpose:
+# an install script runs as your user.
+allowBuilds:
+  esbuild: true

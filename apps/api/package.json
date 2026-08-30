@@ -1,0 +1,31 @@
+{
+  "name": "@drive-in/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "start": "tsx src/server.ts",
+    "typecheck": "tsc --noEmit",
+    "room:create": "tsx src/cli.ts create",
+    "room:lock": "tsx src/cli.ts lock",
+    "room:close": "tsx src/cli.ts close",
+    "room:list": "tsx src/cli.ts list",
+    "room:check": "tsx src/cli.ts check"
+  },
+  "dependencies": {
+    "@drive-in/shared": "workspace:*",
+    "@hono/node-server": "2.1.1",
+    "hono": "4.13.3",
+    "livekit-server-sdk": "2.18.0",
+    "redis": "6.2.1",
+    "tsx": "4.23.12",
+    "ws": "8.21.3",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "26.2.0",
+    "@types/ws": "8.18.1",
+    "typescript": "7.0.2"
+  }
+}

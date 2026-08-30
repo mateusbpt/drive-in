@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# One run per branch: a push on top of a push cancels the previous one.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Types and build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # CLAUDE.md says nothing counts as done with a type error outstanding.
+      - run: pnpm typecheck
+
+      - run: pnpm build
+
+  infra:
+    name: Compose and image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      # The compose file broke once from a careless edit; validating is cheap.
+      - name: Validate the compose file
+        run: |
+          cp .env.example .env
+          docker compose -f infra/docker-compose.yml --env-file .env config > /dev/null
+
+      # This is the image that ships, and it builds the frontend inside it.
+      - name: Build the image
+        run: docker build -f apps/api/Dockerfile -t drive-in-api .
