@@ -52,23 +52,8 @@ export function FullscreenView({
       }
     >
       <div className="absolute inset-0">
-        <DriveInScreen legs={false} fill track={track} localPreview={localPreview} />
+        <DriveInScreen legs={false} fill bare track={track} localPreview={localPreview} />
       </div>
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{ boxShadow: "inset 0 0 220px rgba(0,0,0,0.6)" }}
-      />
-
-      <div
-        className="pointer-events-none absolute inset-x-0 bottom-0 transition-opacity duration-[400ms]"
-        style={{
-          height: 168,
-          opacity: chrome.visible || lightsVisible ? 1 : 0,
-          background:
-            "linear-gradient(180deg, rgba(4,6,10,0) 0%, rgba(4,6,10,0.72) 62%, rgba(4,6,10,0.92) 100%)",
-        }}
-      />
-
       <div
         className="absolute left-7 top-6 flex items-center gap-2.5 rounded-full py-1.5 pl-3 pr-4 transition-opacity duration-[400ms]"
         style={{
@@ -117,13 +102,25 @@ export function FullscreenView({
                 boxShadow: "0 0 9px rgba(255,95,122,0.7)",
               }}
             />
-            <span className="text-[15px]" style={{ color: "#f2f6fc" }}>
+            <span
+              className="text-[15px]"
+              // The shadow replaces the gradient that darkened 168px of the
+              // film: it keeps the name legible over a bright scene without
+              // dimming the picture.
+              style={{ color: "#f2f6fc", textShadow: "0 1px 6px rgba(0,0,0,0.9)" }}
+            >
               {p.displayName}
             </span>
           </div>
         ))}
         {speaking.length > 0 && silent > 0 && (
-          <span className="text-[12.5px]" style={{ color: "rgba(219,228,240,0.34)" }}>
+          <span
+            className="text-[12.5px]"
+            style={{
+              color: "rgba(219,228,240,0.55)",
+              textShadow: "0 1px 6px rgba(0,0,0,0.9)",
+            }}
+          >
             {ui.fullscreen.silentOthers(silent)}
           </span>
         )}
@@ -136,7 +133,7 @@ export function FullscreenView({
       >
         <span
           className="text-[9.5px] font-semibold tracking-[0.24em]"
-          style={{ color: "#3a4656" }}
+          style={{ color: "#8794a8", textShadow: "0 1px 6px rgba(0,0,0,0.9)" }}
         >
           {ui.controls.title}
         </span>
